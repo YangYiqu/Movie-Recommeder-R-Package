@@ -1,0 +1,103 @@
+#library(syuzhet)
+#library(ggplot2)
+#' Calculate Emotional Trend Trajectory
+#'
+#' This function takes a character string as input and returns a plot of the
+#' emotional trend trajectory over time. The function uses sentiment analysis to
+#' calculate the emotional scores of each sentence in the input string, and then
+#' segments the scores into 10 equally-sized sections. The function then finds
+#' the section with the largest emotional fluctuations and another section with
+#' the highest average emotional score, and highlights them in the plot.
+#'
+#' @param data A character string containing the input text.
+#'
+#' @return A ggplot object showing the emotional trend trajectory over time.
+#'
+#' @examples
+#' \dontrun{
+#' # Example 1: Analyzing the emotional trend of a movie review
+#' review <- "This is a fantastic movie! The acting is superb, and the story is
+#'            gripping from beginning to end. I was on the edge of my seat the whole
+#'            time. Highly recommended!"
+#' emo_trend(review)
+#'
+#' # Example 2: Analyzing the emotional trend of a news article
+#' article <- "The COVID-19 pandemic continues to ravage the world, with new cases
+#'             and deaths reported every day. Vaccination efforts are ramping up,
+#'             but many people remain hesitant to get vaccinated. Experts say that
+#'             the best way to protect yourself and others is to follow public health
+#'             guidelines and get vaccinated as soon as possible."
+#' emo_trend(article)
+#'
+#' # Example 3: Analyzing the emotional trend of a personal diary entry
+#' diary <- "Today was a really tough day. I got into an argument with my boss at
+#'           work, and I feel like I'm not making any progress on my personal
+#'           goals. I'm feeling really discouraged right now, but I know that
+#'           tomorrow is a new day and things will get better."
+#' emo_trend(diary)
+#' }
+#'
+#' @import ggplot2
+#' @import syuzhet
+#' @export
+
+
+emo_trend<-function(data){
+
+  stopifnot(is.character(data))
+  data_sentence<-get_sentences(data)
+  sentiment_scores <- get_sentiment(data_sentence)
+  sentiment_df <- data.frame(time = 1:length(sentiment_scores), score = sentiment_scores)
+  # 设置分段数
+  num_segments <- 10
+  n=length(sentiment_scores)
+  # 计算每个分段的大小
+  segment_size <- ceiling(n / num_segments)
+
+  # 计算每个分段的情感得分标准差
+  segment_sd <- sapply(seq(1, n, by = segment_size), function(i) {
+    sd(sentiment_scores[i:min(i + segment_size - 1, n)])
+  })
+
+  segment_mean <- sapply(seq(1, n, by = segment_size), function(i) {
+    abs(mean(sentiment_scores[i:min(i + segment_size - 1, n)]))
+  })
+
+  # 选择情感波动及均分最大的段
+  segment_sd_0_1<-(segment_sd - min(segment_sd)) / (max(segment_sd) - min(segment_sd))
+  segment_mean_0_1<-(segment_mean - min(segment_mean)) / (max(segment_mean) - min(segment_mean))
+  max_segment <- which.max(segment_sd_0_1)
+  max_segment2<-which.max(segment_mean_0_1)
+
+  x1=segment_size*(max_segment-1)+1
+  x2=segment_size*max_segment+1
+  x3=segment_size*(max_segment2-1)+1
+  x4=segment_size*max_segment2+1
+  # 输出结果
+  cat("The segment with the largest emotion fluctuation is", x1,"~",x2,"\n")
+  ggplot(data = sentiment_df, aes(x = time, y = score)) +
+    geom_line(color = "gray30", size = 1.5) +
+    geom_hline(yintercept = mean(sentiment_scores), color = "red", size = 1.2, linetype = "dashed") +
+    geom_ribbon(aes(ymin = mean(sentiment_scores) - sd(sentiment_scores),
+                    ymax = mean(sentiment_scores) + sd(sentiment_scores)),
+                alpha = 0.1, fill = "red")+
+    geom_smooth(method = "loess")+
+    xlab("Narrative Time") +
+    ylab("Emotional Valence") +
+    ggtitle("Movie Emotion Plot Trajectory") +
+    theme_minimal()+
+    theme(axis.title.x = element_text(size = 12, color = "gray50"),
+          axis.title.y = element_text(size = 12, color = "gray50"),
+          plot.title = element_text(size = 16, color = "gray30", face = "bold"))+
+    geom_vline(xintercept = c(x1, x2), linetype = "dashed", color = "red") +
+    annotate("rect", xmin = x1, xmax = x2, ymin = -Inf, ymax = Inf, fill = "blue", alpha = 0.1)+
+    geom_vline(xintercept = c(x3, x4), linetype = "dashed", color = "red") +
+    annotate("rect", xmin = x3, xmax = x4, ymin = -Inf, ymax = Inf, fill = "yellow", alpha = 0.1)+
+    annotate("text", x=(x1+x2)/2,y=min(sentiment_scores)-0.1,label="Strongest fluctuations",size=2)+
+    annotate("text", x=(x3+x4)/2,y=min(sentiment_scores)-0.1,label="maximum valence",size=2)
+}
+
+#my_example_text_1<-readLines(Rose)#readLines("C:/Users/11872/Desktop/filmReco/Rose.txt")
+#my_example_text_2<-readLines(Jack)#readLines("C:/Users/11872/Desktop/filmReco/Jack.txt")
+
+#emo_trend(my_example_text_1)

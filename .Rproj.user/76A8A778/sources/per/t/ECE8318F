@@ -1,0 +1,26 @@
+{
+    "id": "ECE8318F",
+    "path": "C:/Users/11872/Desktop/Movie.Recommender/R/score_predict.R",
+    "project_path": "R/score_predict.R",
+    "type": "r_source",
+    "hash": "1115907378",
+    "contents": "",
+    "dirty": false,
+    "created": 1683083295315.0,
+    "source_on_save": false,
+    "relative_order": 4,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "22,16",
+        "scrollLine": "4"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1683083763,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1683083763498,
+    "read_only": false,
+    "read_only_alternatives": []
+}

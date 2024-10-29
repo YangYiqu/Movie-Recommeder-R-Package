@@ -1,0 +1,79 @@
+#' Generate a wordcloud and plot genre distribution and movie number & average score over time for a specific movie star, director, company, country.
+#'
+#' This function generates a wordcloud for the genres of movies produced by a movie star, director, company, or country. It also plots the distribution of genres as a pie chart and the total number of movie scores and the average movie score over time.
+#'
+#' @param type A character string indicating the type of input. It can be "movie star", "director", "company", "country". Default is "country".
+#' @param name A character string indicating the name of the movie star, director, company, or country. Default is "China".
+#'
+#' @examples
+#' individual_data(type = "star", name = "Robert Hays")
+#' individual_data(type = "director", name = "Irvin Kershner")
+#' individual_data(type = "company", name = "Paramount Picture")
+#' individual_data(type = "country", name = "China")
+#'
+#' @import ggplot2
+#' @import wordcloud2
+#' @import dplyr
+#' @import reshape2
+#' @import plotly
+#' @importFrom scales percent
+#' @importFrom graphics plot
+#'
+#' @export
+individual_data = function(type = "country", name = "China") {
+  if (sum(movie_data[[type]] == name) != 0) {
+    one = movie_data[movie_data[[type]] == name, ]
+    new_data = ddply(one, .(genre), summarise, number = length(genre))
+    new_data = arrange(new_data, desc(number))
+    mylabel = paste(new_data$genre, "(", round(new_data$number/sum(new_data$number)*100, 2), "%)  ", sep = "")
+
+    wordcloud = table(one$genre)
+    print(wordcloud2(1+log10(wordcloud), size = 0.3, fontFamily = 'Times New Roman', shape = "cardioid", color = "random-light", backgroundColor = "grey", minRotation = -pi/6, maxRotation = pi/6))
+
+    p1 = ggplot(new_data, aes(x = "", y = number, fill = genre)) +
+      theme(panel.background = element_rect(fill = "white")) +
+      geom_bar(stat = "identity", color = "white", width = 0.1) +
+      coord_polar(theta = "y") +
+      labs(x = "", y = "", title = "") +
+      scale_fill_discrete(breaks = new_data$genre, labels = mylabel) +
+      theme(legend.title = element_blank(), legend.position = "left") +
+      theme(axis.text = element_blank()) +
+      theme(axis.ticks = element_blank()) +
+      theme(panel.grid = element_blank()) +
+      theme(panel.border = element_blank())
+
+    new_data$fraction = new_data$number / sum(new_data$number)
+    new_data$ymax = cumsum(new_data$fraction)
+    new_data$ymin = c(0, head(new_data$ymax, n = -1))
+
+    p2 = ggplot(data = new_data, aes(fill = genre, ymax = ymax, ymin = ymin, xmax = 4, xmin = 2)) +
+      geom_rect(colour = "white", show.legend = FALSE) +
+      coord_polar(theta = "y") +
+      labs(x = "", y = "", title = "") +
+      xlim(c(0, 4)) +
+      theme_bw() +
+      theme(panel.grid=element_blank()) +
+      theme(axis.text=element_blank()) +
+      theme(axis.ticks=element_blank()) +
+      theme(panel.border=element_blank())
+
+    print(p1 + p2 + plot_layout(ncol = 2))
+
+    time_data = dplyr::summarise(group_by(one, year), total.number = length(score), average.score = mean(score))
+    p3 = ggplot(time_data, aes(x = year, y = total.number)) +
+      geom_point(color = "blue") +
+      geom_line(color = "blue") +
+      labs(x = "Year", y = "Count")
+
+    p4 = ggplot(time_data, aes(x = year, y = average.score)) +
+      geom_point(color = "red") +
+      geom_line(color = "red") +
+      labs(x = "Year", y = "Average Score")
+
+    print(p1 + p2 + p3 + p4 + plot_layout(ncol = 2))
+  } else {
+    print(paste("Sorry, the", type, name, "you want doesn't exist in our database.", sep = " "))
+  }
+}
+#visualize.individual.data("country", "United States")
+

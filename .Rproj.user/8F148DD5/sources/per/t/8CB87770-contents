@@ -1,0 +1,58 @@
+# sort by score/gross
+#' Perform a general analysis of movie data
+#'
+#' This function performs a general analysis of movie data, including filtering the data based on the year, sorting the data by a given criterion, and creating bar charts of the count of movies by rating, genre, company, and country.
+#'
+#' @param time.start the start year of the movie data to be analyzed (default: 1900)
+#' @param time.end the end year of the movie data to be analyzed (default: 2022)
+#' @param sort.criterion the criterion by which to sort the movie data ("score" or "gross", default: "score")
+#' @param show.number the number of movies to display (default: 10)
+#'
+#' @return This function has no return value, but prints out the filtered and sorted movie data as well as four bar charts of the count of movies by rating, genre, company, and country.
+#'
+#' @export
+#'
+#' @examples
+#' general_analysis(1900, 2022, "score", 20)
+#'
+general_analysis = function(time.start = 1900, time.end = 2022, sort.criterion = "score", show.number = 10){
+  movie_data = movie_data[movie_data$year>=time.start & movie_data$year <= time.end, ] %>% head(., show.number)
+  if (sort.criterion == "score"){
+    movie_data = arrange(movie_data, desc(score), desc(year))
+  }else{
+    movie_data = arrange(movie_data, desc(gross), desc(year))
+  }
+  print(movie_data)
+
+  movie_data = movie_data[movie_data$genre != "" &  movie_data$rating != "" & movie_data$company != "" & movie_data$country != "", ]
+
+  new_data1 = ddply(movie_data, .(rating), summarise, number = length(genre)) %>% arrange(., desc(number))
+  new_data2 = ddply(movie_data, .(genre), summarise, number = length(director)) %>% arrange(., desc(number))
+  new_data3 = ddply(movie_data, .(company), summarise, number = length(company)) %>% arrange(., desc(number))
+  new_data4 = ddply(movie_data, .(country), summarise, number = length(country)) %>% arrange(., desc(number))
+
+  p1 = ggplot(new_data1, aes(x = rating, y = number)) +
+    geom_bar(stat = "identity", aes(fill = number)) +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    labs(x = "rating", y = "count")
+
+  p2 = ggplot(new_data2, aes(x = genre, y = number)) +
+    geom_bar(stat = "identity", aes(fill = number)) +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) +
+    labs(x = "genre", y = "count")
+
+  p3 = ggplot(new_data3, aes(x = company, y = number)) +
+    geom_bar(stat = "identity", aes(fill = number)) +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) +
+    labs(x = "company", y = "count")
+
+  p4 = ggplot(new_data4, aes(x = country, y = number)) +
+    geom_bar(stat = "identity", aes(fill = number)) +
+    scale_fill_gradient(low = "white", high = "steelblue") +
+    theme(axis.text.x = element_text(angle = 60, vjust = 1, hjust = 1)) +
+    labs(x = "country", y = "count")
+  print(p1 + p2 + p3 + p4 + plot_layout(nrow = 2))
+}
+#general.analysis(1900, 2022, "score", 20)

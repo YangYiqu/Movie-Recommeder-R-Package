@@ -1,0 +1,49 @@
+Package: Movies.Recommender
+Type: Package
+Title: Movies Industy Data Analysis and Movies Recommendation Algorithms 
+Version: 0.1.0
+Author: Junyu Leng <121090250@link.cuhk.edu.cn>, Puzhu Wang <121090555@link.cuhk.edu.cn>, Yiqu Yang <121090711@link.cuhk.edu.cn>
+Maintainer: Puzhu Wang <121090555@link.cuhk.edu.cn>
+Description: 
+    Provide a framework for movie analysis, prediction and recommendation. The package contains three main parts.
+    1. Based on the build-in movie dataset, you can get exploratory data analysis (EDA) and visualization(line charts, pie charts, wordclouds).
+    2. Based on your input user's historical data, you can get 
+        (1) movie prediction by various machine learning algorithms (linear regression, neural network, et al.)
+        (2) movie recommendation by various recommandation algorithms (RANDOM, UBCF, IBCF, POPULAR, SVD)
+        (3) most similar user recommendation by cosine similarity 
+    3. Based on your input movie text, you can get emotion classifications and emotion trends analysis by natural language processing (NLP). 
+License: GPL-2
+Depends: R (>= 3.5.0)
+Imports:
+    utils,
+    plyr,
+    dplyr,
+    tidyr,
+    ggplot2,
+    patchwork,
+    wordcloud2,
+    rpart,
+    neuralnet,
+    reshape2,
+    class,
+    randomForest,
+    e1071,
+    syuzhet,
+    recommenderlab,
+    magrittr,
+    DescTools,
+    plotly,
+    tibble,
+    scales,
+    pander,
+    testthat
+Suggests:
+    stats,
+    graphics,
+    knitr,
+    rmarkdown
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.2.3
+VignetteBuilder: knitr
+Config/testthat/edition: 3

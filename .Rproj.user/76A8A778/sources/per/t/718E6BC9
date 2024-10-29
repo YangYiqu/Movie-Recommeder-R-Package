@@ -1,0 +1,24 @@
+{
+    "id": "718E6BC9",
+    "path": "C:/Users/11872/Desktop/Movie.Recommender/tests/testthat/test-analyze_company.R",
+    "project_path": "tests/testthat/test-analyze_company.R",
+    "type": "r_source",
+    "hash": "4252394358",
+    "contents": "",
+    "dirty": false,
+    "created": 1683085876462.0,
+    "source_on_save": false,
+    "relative_order": 12,
+    "properties": {
+        "source_window_id": "",
+        "Source": "Source"
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1683043121,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1683043121,
+    "read_only": false,
+    "read_only_alternatives": []
+}
